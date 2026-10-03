@@ -13,7 +13,7 @@
 
 \section{Hours Spent}
 
-We spent a total of \underline{5} hours on this lab. 
+We spent a total of \underline{10} hours on this lab. 
 
 \section{\texttt{mult.s} Assembly Code}
 
@@ -36,82 +36,98 @@ DONE:
 \section{\texttt{div.s} Assembly Code}
 
 
-Completed \texttt{div.s} code pasted below:
+Completed \texttt{div.s} code pasted below with C equivalents in the comments:
 
 \begin{Verbatim}
 
-# Set initial values. The remainder is initially equal to the dividend.
-add a3, zero, a0 # a3 = a0;
+# Set initial values. 
+# The remainder is initially 
+# equal to the dividend.
+add a3, zero, a0                           # a3 = a0;
 
-# If the divisor is zero, set the quotient to 0xFF and proceed to done.
-bne a1, zero, divisorNonzero # if (a1 != 0) { divisorNonZero; }
-addi a2, zero, 0x000000FF # a2 = 0x000000FF;
+# If the divisor is zero, 
+# set the quotient to 0xFF 
+# and proceed to done. 
+bne a1, zero, divisorNonzero               # if (a1 != 0) { divisorNonZero; }         
+addi a2, zero, 0x000000FF                  # a2 = 0x000000FF;                            
 j done
 
 divisorNonzero:
-# For nonzero divisors, set the quotient to zero for now.
-add a2, zero, zero # a2 = 0;
+# For nonzero divisors, 
+# set the quotient to zero.
+add a2, zero, zero                         # a2 = 0;
 
-# If the dividend is lesser than the divisor, proceed to done.
-bltu a0, a1, done # if (a0 < a1) { done; ]
+# If the dividend is lesser 
+# than the divisor, proceed to done.
+bltu a0, a1, done                          # if (a0 < a1) { done; }
 
-# Dividend and divisor are valid, so calculate their bit lengths. Initially
-# store the dividend in t0 and the divisor in t1. Store their current
+# Dividend and divisor are valid, 
+# so calculate their bit lengths. 
+# Initially store the dividend in t0
+# and the divisor in t1. Store their current
 # lengths in t2 and t3, respectively.
-add t0, zero, a0 # t0 = a0;
-add t1, zero, a1 # t1 = a1;
-add t2, zero, zero # t2 = 0;
-add t3, zero, zero # t3 = 0;
+add t0, zero, a0                           # t0 = a0;
+add t1, zero, a1                           # t1 = a1;
+add t2, zero, zero                         # t2 = 0;
+add t3, zero, zero                         # t3 = 0;
 
-# Right shift t0 and increment t2 until t0 is zero for the dividend
+# Right shift t0 and increment t2 
+# until t0 is zero for the dividend
 # bit length.
-whileDividendNonzero: # while (t0 > 0)
-bleu t0, zero, whileDivisorNonzero
-srli t0, t0, 1 # t0 >>= 1;
-addi t2, t2, 1 # t2 += 1;
+whileDividendNonzero:                      
+bleu t0, zero, whileDivisorNonzero         # while (t0 > 0)
+srli t0, t0, 1                             # t0 >>= 1;
+addi t2, t2, 1                             # t2 += 1;
 j whileDividendNonzero
 
-# Right shift t1 and increment t3 until t1 is zero for the divisor
+# Right shift t1 and increment t3 
+# until t1 is zero for the divisor
 # bit length.
-whileDivisorNonzero: # while (t1 > 0)
-bleu t1, zero, lenDone
-srli t1, t1, 1 # t1 >>= 1;
-addi t3, t3, 1 # t3 += 1;
+whileDivisorNonzero: 
+bleu t1, zero, lenDone                     # while (t1 > 0)
+srli t1, t1, 1                             # t1 >>= 1;
+addi t3, t3, 1                             # t3 += 1;
 j whileDivisorNonzero
 
 lenDone:
-# Left shift the divisor by the difference in bit length between the
+# Left shift the divisor by the 
+# difference in bit length between the
 # dividend and the divisor.
-sub t4, t2, t3 # t4 = t2 - t3
-sll a1, a1, t4 # a1 <<= t4;
+sub t4, t2, t3                             # t4 = t2 - t3
+sll a1, a1, t4                             # a1 <<= t4;
 
-# Set up a for loop with t4 + 1 iterations for the division.
-addi t4, t4, 1 # t4 += 1;
-add t5, zero, zero # t5 = 0;
+# Set up a for loop with t4 + 1
+#  iterations for the division.
+addi t4, t4, 1                             # t4 += 1;
+add t5, zero, zero                         # t5 = 0;
 
-for: # for (; t5 < t4; t5++)
+for:                                       # for (; t5 < t4; t5++)
 bge t5, t4, done
 
-# If the remainder is greater than or equal to the divisor, subtract
-# the divisor from the remainder, left shift the quotient by 1, and
+# If the remainder is greater than
+# or equal to the divisor, subtract
+# the divisor from the remainder, 
+# left shift the quotient by 1, and
 # set the quotient LSB to 1.
-bltu a3, a1, else # if (a3 >= a1) { ... }
-sub a3, a3, a1 # a3 -= a1;
-slli a2, a2, 1 # a2 <<= 1;
-ori a2, a2, 1 # a2 |= 1;
+bltu a3, a1, else                          # if (a3 >= a1) { ... }
+sub a3, a3, a1                             # a3 -= a1;
+slli a2, a2, 1                             # a2 <<= 1;
+ori a2, a2, 1                              # a2 |= 1;
 j skip
 
-# Else just left shift the quotient by 1, setting the LSB to 0.
-else: # else { a2 <<= 1; }
+# Else just left shift the quotient by 1,
+# setting the LSB to 0.
+else:                                      # else { a2 <<= 1; }
 slli a2, a2, 1
 
-# Right shift the divisor by 1 and increment the for loop counter.
+# Right shift the divisor by 1
+# and increment the for loop counter.
 skip:
-srli a1, a1, 1 # a1 >>= 1;
-addi t5, t5, 1 # t5 += 1;
+srli a1, a1, 1                             # a1 >>= 1;
+addi t5, t5, 1                             # t5 += 1;
 j for
 
-done: # End of division.
+done:                                      # End of division.
 
 
 \end{Verbatim}
@@ -119,7 +135,7 @@ done: # End of division.
 \section{Feedback}
 
 \noindent
-% Add feedback about how the lab could be improved here.
+% If you have any feedback, add it here. Otherwise, remove the section. 
 \vspace{5cm}
 
 \end{document}

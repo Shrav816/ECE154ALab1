@@ -74,7 +74,7 @@ add t3, zero, zero                         # t3 = 0;
 # until t0 is zero for the dividend
 # bit length.
 whileDividendNonzero:                      
-bleu t0, zero, whileDivisorNonzero         # while (t0 > 0)
+beq t0, zero, whileDivisorNonzero         # while (t0 > 0)
 srli t0, t0, 1                             # t0 >>= 1;
 addi t2, t2, 1                             # t2 += 1;
 j whileDividendNonzero
@@ -83,7 +83,7 @@ j whileDividendNonzero
 # until t1 is zero for the divisor
 # bit length.
 whileDivisorNonzero: 
-bleu t1, zero, lenDone                     # while (t1 > 0)
+beq t1, zero, lenDone                     # while (t1 > 0)
 srli t1, t1, 1                             # t1 >>= 1;
 addi t3, t3, 1                             # t3 += 1;
 j whileDivisorNonzero
